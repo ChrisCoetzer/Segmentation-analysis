@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+/data/
+/tmp/
+/outputs/
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+*.pem
+*.key

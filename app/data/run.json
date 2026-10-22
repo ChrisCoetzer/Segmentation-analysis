@@ -1,0 +1,121 @@
+{
+  "seed": 20261020,
+  "cluster_seed": 20261021,
+  "total_rows": 13979592,
+  "train_rows": 8387755,
+  "estimation_rows": 2795918,
+  "test_rows": 2795919,
+  "segments": [
+    1,
+    2,
+    4,
+    8,
+    16,
+    32
+  ],
+  "max_depth": 5,
+  "features": [
+    "f0",
+    "f1",
+    "f2",
+    "f3",
+    "f4",
+    "f5",
+    "f6",
+    "f7",
+    "f8",
+    "f9",
+    "f10",
+    "f11"
+  ],
+  "method": "Feature-only balanced mixed-data bisecting two-means clustering",
+  "continuous_features": [
+    "f0",
+    "f2",
+    "f7",
+    "f10"
+  ],
+  "categorical_features": [
+    "f1",
+    "f3",
+    "f4",
+    "f5",
+    "f6",
+    "f8",
+    "f9",
+    "f11"
+  ],
+  "category_counts": {
+    "f1": 52,
+    "f3": 505,
+    "f4": 232,
+    "f5": 110,
+    "f6": 1503,
+    "f8": 3388,
+    "f9": 1449,
+    "f11": 114
+  },
+  "preprocessing": "Train-only continuous standardization; nominal one-hot categorical encoding. Each category mismatch has squared distance 1; each standardized continuous difference contributes squared distance / 2. Category code magnitude is ignored.",
+  "fitting": "Two-means initialization and balanced median distance-difference assignments on up to 20,000 training users per node. Frozen median threshold on all training members. Outcomes and treatment excluded.",
+  "ranking": "Separate estimation-set treatment-minus-control rate; rankings may differ by outcome, cluster membership does not.",
+  "evaluation": "Common 32-cluster feature strata and common population-share weights in both arms for every policy. Fractional boundary-cluster selection is random in expectation.",
+  "uncertainty": "95% pointwise normal intervals conditional on fixed clusters, rankings, allocations and stratum counts. No training or privacy-sampling uncertainty.",
+  "status": "Exploratory benchmark; previously inspected evaluation release, not a new confirmatory experiment.",
+  "geometry_sample_rows": 50000,
+  "geometry": [
+    {
+      "segments": 1,
+      "mean_squared_distance": 3.2787378453826905
+    },
+    {
+      "segments": 2,
+      "mean_squared_distance": 2.4968153658914565
+    },
+    {
+      "segments": 4,
+      "mean_squared_distance": 2.210413394227028
+    },
+    {
+      "segments": 8,
+      "mean_squared_distance": 1.8939632485198974
+    },
+    {
+      "segments": 16,
+      "mean_squared_distance": 1.5197089375829698
+    },
+    {
+      "segments": 32,
+      "mean_squared_distance": 1.0206436512756347
+    }
+  ],
+  "training_balance_range": [
+    0.5,
+    0.5000028613121977
+  ],
+  "actual_segments_by_outcome": {
+    "conversion": [
+      1,
+      2,
+      4,
+      8,
+      16,
+      32
+    ],
+    "visit": [
+      1,
+      2,
+      4,
+      8,
+      16,
+      32
+    ]
+  },
+  "source_sha256": "2716e1bf0fd157a93b5bf86924d9088419dfbac2022c6cd90030220634f616dc",
+  "versions": {
+    "numpy": "2.5.4",
+    "pandas": "3.0.6",
+    "scikit-learn": "1.9.1",
+    "pyarrow": "23.0.1"
+  },
+  "elapsed_seconds": 40.12
+}

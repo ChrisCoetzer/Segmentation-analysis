@@ -1,0 +1,15 @@
+{
+  "source": "Criteo Attribution Modeling for Bidding",
+  "source_sha256": "94ac7a465564349bc7ba008602211d5990a3c53cc133abc0aadef61ea2391a98",
+  "impressions": 16468027,
+  "user_campaign_pairs": 7813401,
+  "converted_pairs": 336748,
+  "campaigns": 675,
+  "raw_positive_impression_labels": 806196,
+  "elapsed_seconds": 4.15,
+  "grain": "One user within one campaign over the entire released impression period.",
+  "numerator": "Pairs with any impression labeled conversion=1, counted once per pair.",
+  "denominator": "All observed user-campaign pairs in a frequency bin.",
+  "frequency": "Number of recorded impressions for that user and campaign across the released log.",
+  "note": "Descriptive association only. Log sampling means recorded frequency need not equal true frequency. 30-day forward conversion labels can repeat across impressions. This is not a count of distinct conversion events. Across pooled campaigns a user can occur more than once. Observed frequency can reflect activity after conversion; no causal direction is inferred."
+}
