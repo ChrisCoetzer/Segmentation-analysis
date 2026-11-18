@@ -1,0 +1,1036 @@
+I’m working on a graduate-level data visualization / analytics consulting project using the Criteo Uplift Prediction dataset as the required primary dataset, with the Criteo Attribution Modeling dataset available as a secondary source.
+
+The class structure is that each team acts as a boutique analytics consultancy. We are not given a fixed task. We have to identify the client, define a decision worth changing, justify why the data can support it, build an interactive Streamlit application, and present the work in a short five-slide pitch and final demo.
+
+The main challenge is that the Criteo uplift dataset is unusually large and experimentally strong, but its customer features are anonymized. That makes a normal “identify the best customer segment” dashboard much less useful than it first appears.
+
+## Current Project Direction
+
+The primary question we are pursuing is:
+
+**How much value is actually available from customer segmentation and personalized targeting?**
+
+The uplift dataset can show whether advertising response differs across customer profiles, but the features `f0`–`f11` are anonymized and transformed. We therefore cannot say things like:
+
+- “mobile users respond better”
+- “recent visitors should be targeted”
+- “high-income users are persuadable”
+- “repeat buyers should be suppressed”
+
+Even if a model finds a high-uplift group, the released data does not tell us what that group means in normal marketing terms.
+
+Because of that, our direction is not:
+
+> “Who are the best customer segments?”
+
+It is:
+
+> **“Is there enough difference in customer response to advertising that discovering and operationalizing those segments would actually be worth investing in?”**
+
+This is a more defensible use of the data.
+
+## Proposed Client
+
+A good client is:
+
+**VP of Marketing Analytics / Head of Customer Strategy at a large e-commerce advertiser**
+
+The organization is considering investing in:
+
+- deeper customer segmentation
+- first-party data enrichment
+- customer research
+- personalization
+- sophisticated targeting
+- causal/uplift modeling
+- audience discovery
+- more complex marketing technology
+
+The organization does not know whether the extra complexity is actually justified by meaningful differences in customer response.
+
+## Business Problem
+
+Many marketing organizations assume that more segmentation and personalization are automatically better.
+
+But segmentation has costs:
+
+- data collection
+- research
+- model development
+- tooling
+- maintenance
+- creative variation
+- campaign complexity
+- measurement complexity
+
+The client needs evidence that meaningful response differences actually exist before committing to that investment.
+
+The client question is:
+
+**Is deeper segmentation/personalization worth investing in, and how much additional performance is realistically available from it?**
+
+The decision the app should change is:
+
+**How much should the organization invest in discovering and operationalizing distinct customer segments versus continuing with a broader targeting strategy?**
+
+## Working Mandate
+
+Build an interactive decision-support tool that quantifies how much incremental advertising performance becomes available as customer segmentation becomes more sophisticated.
+
+The app should compare:
+
+1. treating the whole population as one group
+2. very coarse segmentation
+3. moderate segmentation
+4. more advanced heterogeneous-treatment-effect targeting
+
+The core concept is:
+
+**Segmentation Headroom**
+
+This means the additional incremental performance available from exploiting differences in treatment response rather than using one population-wide policy.
+
+The key question is not whether the most sophisticated model wins by a tiny benchmark metric.
+
+The question is:
+
+> **How quickly do the gains from segmentation appear, and where do they start to flatten?**
+
+Possible interpretations:
+
+- If almost all the gain is captured with 2–4 broad groups, then expensive hyper-personalization may not be justified.
+- If the curve keeps improving meaningfully as segmentation becomes more sophisticated, there may be substantial value in investing in deeper customer discovery.
+- If there is almost no improvement over one broad treatment policy, then the business case for segmentation may be weak.
+
+## Important Difference From a Standard Uplift Project
+
+A teammate proposed a more conventional idea:
+
+> build an incrementality dashboard that identifies which users should be targeted and which should not.
+
+That is technically possible as an uplift-modeling exercise, but it overstates what the released data can support as a business tool.
+
+We can estimate which anonymized feature profiles have higher or lower expected treatment effect.
+
+However:
+
+- we cannot identify what those profiles mean in normal marketing terms
+- we cannot produce deployable rules such as “target recent visitors”
+- we cannot know for a specific individual that they definitely would or would not have converted without the ad
+- we only observe one potential outcome for each user
+
+So a standard output such as:
+
+> “users with high f3 and low f8 should be targeted”
+
+is analytically valid but not very useful to a real marketing organization.
+
+That is why the current project measures the **value of knowing the segments**, rather than pretending the public dataset tells us what the segments are.
+
+## Primary Dataset
+
+Dataset:
+
+`criteo/criteo-uplift`
+
+The dataset has already been downloaded and successfully loaded through Hugging Face.
+
+Confirmed locally:
+
+- **13,979,592 rows**
+- **16 columns**
+
+Fields:
+
+- `f0`
+- `f1`
+- `f2`
+- `f3`
+- `f4`
+- `f5`
+- `f6`
+- `f7`
+- `f8`
+- `f9`
+- `f10`
+- `f11`
+- `treatment`
+- `conversion`
+- `visit`
+- `exposure`
+
+All `f0`–`f11` fields are numeric `float64`.
+
+The outcome/treatment fields are integer binary indicators.
+
+The dataset grain is one experimental user / observation.
+
+## How the Experiment Works
+
+This dataset comes from randomized advertising incrementality experiments.
+
+Conceptually:
+
+1. eligible users enter the experiment
+2. users are randomly assigned to treatment or control
+3. treatment users are eligible to receive advertising
+4. some treated users are actually effectively exposed to an ad
+5. later behavior is recorded
+6. outcomes include visit and conversion
+
+Important variables:
+
+### `treatment`
+
+`treatment = 1`
+User was randomly assigned to the treatment group and was eligible to receive advertising.
+
+`treatment = 0`
+User was assigned to the control group and advertising was withheld.
+
+This is the main causal treatment indicator.
+
+### `exposure`
+
+`exposure = 1`
+The treated user was actually effectively exposed to advertising.
+
+`exposure = 0`
+The user was not effectively exposed.
+
+A user can therefore have:
+
+`treatment = 1`
+`exposure = 0`
+
+This means they were assigned to the treatment group but were never actually effectively exposed to an ad.
+
+Do not treat `exposure` as the randomized treatment variable.
+
+Primary causal comparisons should use `treatment`.
+
+### `visit`
+
+Binary indicator for whether the user visited the advertiser.
+
+This is a relatively common outcome and is likely the best primary outcome for early treatment-effect and heterogeneity analysis.
+
+### `conversion`
+
+Binary indicator for whether the user completed the advertiser’s desired conversion action.
+
+The precise business action is anonymized.
+
+A conversion does not mean the ad caused the conversion.
+
+Control users can convert as well.
+
+The causal quantity comes from comparing treatment and control conversion rates.
+
+## Counterfactual Limitation
+
+For any individual user, we never observe both:
+
+- what would happen if treated
+- what would happen if untreated
+
+We observe only one.
+
+Therefore we cannot say:
+
+> “This individual definitely converted because of the advertisement.”
+
+We can estimate something more like:
+
+> “Users with feature profiles like this appear to have a higher expected conversion probability under treatment than under control.”
+
+This distinction matters in both the analysis and the UI language.
+
+## Anonymization
+
+The twelve customer features are intentionally anonymized.
+
+They should be treated as transformed numeric coordinates that preserve useful predictive relationships but do not have recoverable business meanings.
+
+Do not assume values such as:
+
+`f0 = 12.62`
+
+mean:
+
+- 12.62%
+- 12.62 times average
+- a standardized z-score
+- age
+- recency
+- spend
+- any other interpretable marketing variable
+
+The original semantic labels and units are gone.
+
+This is a major reason for the current project direction.
+
+## Non-Uniform Subsampling
+
+The released uplift dataset was also non-uniformly subsampled for privacy.
+
+This means the released public data should not be treated as a simple representative random sample of the advertiser’s original customer population.
+
+Consequences:
+
+- segment sizes in the public dataset may not equal real segment shares
+- aggregate lift values should not be interpreted as the advertiser’s true production incrementality
+- absolute treatment-effect levels may be affected by the release process
+- the dataset remains useful as a large-scale benchmark for relative treatment-response structure and model comparison
+
+Therefore the project should avoid statements such as:
+
+> “All advertisers should expect X% improvement from segmentation.”
+
+Safer language:
+
+> “Within this large randomized Criteo benchmark, increasing segmentation sophistication captured X additional treatment-response structure.”
+
+The project should be framed as an empirical benchmark of segmentation headroom, not a universal market estimate.
+
+## Main Analytical Question
+
+The first important analytical question is:
+
+**Does this dataset contain meaningful and stable heterogeneity in advertising response, or is most of the treatment effect adequately summarized by one average effect?**
+
+This must be answered before fully committing to the segmentation-headroom story.
+
+Do not assume meaningful heterogeneity exists.
+
+Test it.
+
+If the dataset does not show stable out-of-sample heterogeneity, surface that result rather than forcing the original hypothesis.
+
+## Proposed Analysis Pipeline
+
+### Step 1 — Data Validation
+
+Confirm:
+
+- row count
+- schema
+- dtypes
+- missing values
+- duplicates if relevant
+- treatment/control proportions
+- exposure rates
+- visit rate
+- conversion rate
+- feature distributions
+- memory footprint
+
+Do not alter the raw dataset unnecessarily.
+
+### Step 2 — Average Treatment Effects
+
+For both `visit` and `conversion`, calculate:
+
+- treatment outcome rate
+- control outcome rate
+- absolute treatment effect
+- relative treatment effect
+- standard error
+- confidence interval
+- statistical significance where appropriate
+
+This becomes the “no segmentation” baseline.
+
+### Step 3 — Simple Heterogeneity Exploration
+
+Before using complex ML, inspect whether treatment response varies across the feature space.
+
+Possible approaches:
+
+- quantile bins for each feature
+- treatment effect by feature decile
+- confidence intervals within groups
+- shallow decision trees
+- simple interaction terms
+- two-dimensional feature slices where justified
+
+The goal is not to create personas.
+
+The goal is to determine whether different regions of the feature space have meaningfully different causal responses.
+
+### Step 4 — Segmentation Complexity Ladder
+
+Build a transparent sequence from simple to more sophisticated.
+
+Possible structure:
+
+**Level 0**
+No segmentation.
+One average treatment effect.
+
+**Level 1**
+Very coarse segmentation.
+For example 2–4 groups.
+
+**Level 2**
+Moderate segmentation.
+For example 5–10 groups or shallow tree leaves.
+
+**Level 3**
+One flexible heterogeneous treatment-effect model.
+
+Candidate models could include:
+
+- S-learner
+- T-learner
+- shallow uplift/causal tree
+- LightGBM/XGBoost-based model
+- transformed-outcome approach
+
+Do not turn this into a giant algorithm competition.
+
+The model is a tool for measuring segmentation value, not the final product.
+
+### Step 5 — Honest Held-Out Evaluation
+
+This is critical.
+
+Do not discover segments and evaluate them on the same data.
+
+Use:
+
+- train
+- validation
+- test
+
+or another honest sample-splitting approach.
+
+Any claimed increase in segmentation value must be measured on data not used to create the segmentation.
+
+Actively test for overfitting.
+
+### Step 6 — Segmentation Headroom Curve
+
+This is likely the main chart.
+
+Possible x-axis:
+
+- no segmentation
+- 2 groups
+- 4 groups
+- 8 groups
+- 16 groups
+- flexible model
+
+Possible y-axis:
+
+- incremental visits captured
+- incremental conversions captured
+- estimated policy value
+- percentage of available treatment effect captured
+- another defensible out-of-sample incremental metric
+
+The shape of this curve is the core business result.
+
+We care about diminishing returns.
+
+### Step 7 — Targeting-Efficiency Curve
+
+Another useful visual:
+
+X-axis:
+percentage of customers targeted
+
+Y-axis:
+percentage of incremental outcome captured
+
+Compare:
+
+- broad/random policy
+- coarse segmentation
+- more sophisticated targeting
+
+This answers something like:
+
+> “How much of the incremental response could we preserve while advertising to fewer users?”
+
+This can help translate treatment heterogeneity into a marketing-efficiency story.
+
+## Main Outcome Choice
+
+`visit` should probably be the primary outcome during model development.
+
+Reason:
+
+- it has far more positive observations
+- subgroup treatment effects will be much more stable
+- conversion is very rare
+
+Approximate released-data rates previously observed/documented are around:
+
+- visit: ~4.7%
+- conversion: ~0.29%
+
+At 0.29% conversion, approximate positive counts are:
+
+100,000 rows:
+~290 conversions
+
+500,000 rows:
+~1,450 conversions
+
+1,000,000 rows:
+~2,900 conversions
+
+5,000,000 rows:
+~14,500 conversions
+
+13,979,592 rows:
+~40,000 conversions
+
+This is why conversion-level subgroup analysis becomes unstable very quickly on small samples.
+
+Use conversion as a secondary business-relevant outcome once the pipeline is stable.
+
+## Sampling Strategy
+
+The local computer is powerful enough that the full uplift dataset is realistic for final analysis.
+
+Hardware:
+
+- AMD Ryzen 7 5800X3D
+- NVIDIA RTX 4070 Ti Super
+- 16 GB VRAM
+
+Because the dataset is wide only by 16 columns, the row count is large but the raw matrix itself is manageable.
+
+Sampling is therefore mainly a development convenience, not a requirement for final analysis.
+
+Recommended workflow:
+
+### Development
+Use approximately:
+
+- 500K rows for fast debugging
+- 1M rows for serious iteration
+
+### Robustness
+Run on:
+
+- 5M rows
+
+### Final
+Run the finalized analytical pipeline on:
+
+- full ~13.98M rows
+
+Then compare whether the conclusions are stable across sample sizes.
+
+For final treatment-effect estimates and final headroom results, prefer the full dataset if computationally comfortable.
+
+Do not repeatedly retrain expensive models on 14M rows while still changing basic code.
+
+## Model Runtime Expectations
+
+Do not rely on exact runtime predictions, but this hardware should comfortably support the following general model ladder:
+
+- logistic regression: very fast
+- shallow decision tree: very fast
+- histogram gradient boosting: manageable
+- XGBoost GPU: practical
+- CatBoost GPU: practical
+- random forest: less attractive at full scale
+- large causal forests / giant model tournaments: unnecessary
+
+A useful complexity ladder for the project is:
+
+**logistic/simple baseline → shallow tree segmentation → one boosted-tree treatment-effect model**
+
+That is sufficient for the client question.
+
+## Secondary Dataset
+
+Dataset:
+
+`criteo/criteo-attribution-dataset`
+
+This has also been successfully downloaded and loaded locally.
+
+Confirmed:
+
+- **16,468,027 rows**
+- **22 columns**
+
+Fields include:
+
+- `timestamp`
+- `uid`
+- `campaign`
+- `conversion`
+- `conversion_timestamp`
+- `conversion_id`
+- `attribution`
+- `click`
+- `click_pos`
+- `click_nb`
+- `cost`
+- `cpo`
+- `time_since_last_click`
+- `cat1`
+- `cat2`
+- `cat3`
+- `cat4`
+- `cat5`
+- `cat6`
+- `cat7`
+- `cat8`
+- `cat9`
+
+The attribution dataset is impression-level rather than randomized user-level experiment data.
+
+It includes campaign and user journey context that the uplift dataset lacks.
+
+Important:
+
+The attribution dataset is observational.
+
+Do not use it to claim causal campaign-level incrementality.
+
+Also:
+
+The attribution and uplift datasets cannot be joined directly at the user level.
+
+Do not pretend they can.
+
+## Role of the Attribution Dataset
+
+The attribution dataset is secondary.
+
+It may later help contextualize where deeper segmentation might be useful.
+
+Possible descriptive campaign dimensions:
+
+- impressions per user
+- campaign scale
+- repeat exposure
+- click intensity
+- time since last click
+- conversion latency
+- cost
+- attribution rate
+- conversion concentration
+
+Potential campaign archetypes could include:
+
+- high-frequency retargeting
+- broad low-frequency campaigns
+- click-heavy journeys
+- long-latency conversion environments
+- high-cost campaigns
+- concentrated campaigns
+
+The uplift data gives us a randomized benchmark of treatment-response heterogeneity.
+
+The attribution dataset gives more concrete marketing structure.
+
+But the project must not claim:
+
+> “Campaign X has the uplift pattern estimated from the uplift dataset.”
+
+The relationship between the two is conceptual/contextual, not a join.
+
+## Possible Phase 2 Opportunity
+
+The strongest current Phase 2 idea is probably:
+
+### Discovery Investment Calculator
+
+Allow the user to input assumptions such as:
+
+- audience size
+- annual media spend
+- value per incremental conversion
+- customer research cost
+- personalization cost
+- segmentation tooling cost
+
+Then translate measured segmentation headroom into a rough break-even business case.
+
+Example question:
+
+> “If deeper segmentation could capture 8% more incremental response, what is the maximum annual investment that would be rational under our economics?”
+
+This would make the app more explicitly decision-oriented.
+
+Another possible extension is a descriptive campaign-context explorer using the attribution dataset.
+
+## Streamlit App Direction
+
+The final app should be interactive but should not train large models in real time.
+
+Precompute expensive analysis and save outputs.
+
+Possible structure:
+
+### Page 1 — Experiment Baseline
+
+Show:
+
+- sample size
+- treatment/control split
+- visit rate
+- conversion rate
+- average treatment effect
+- confidence intervals
+
+Purpose:
+
+Establish what happens when the population is treated as one group.
+
+### Page 2 — Response Heterogeneity
+
+Show:
+
+- subgroup treatment effects
+- uncertainty
+- feature-based response patterns
+- simple group comparisons
+
+Purpose:
+
+Show whether one average hides meaningful differences.
+
+### Page 3 — Segmentation Headroom
+
+Main chart:
+
+segmentation complexity vs out-of-sample incremental value
+
+User controls might include:
+
+- visit vs conversion
+- number of groups
+- segmentation method
+- targeting percentage
+- confidence level
+
+Purpose:
+
+Answer whether added segmentation sophistication is worth the complexity.
+
+### Page 4 — Targeting Efficiency
+
+Show:
+
+percentage of users targeted vs percentage of incremental response captured
+
+Purpose:
+
+Show whether segmentation lets the advertiser maintain most incremental benefit while reducing targeting volume.
+
+### Page 5 — Business Interpretation / Scenario Tool
+
+Potentially allow:
+
+- audience-size assumptions
+- value assumptions
+- implementation-cost assumptions
+
+Purpose:
+
+Translate statistical headroom into a business decision.
+
+## AI Role
+
+The current slide language for AI is:
+
+**AI will act as a queryable exploration assistant, helping users compare segments and targeting scenarios while also translating the statistical results into plain language about whether deeper segmentation is worth the added effort and where the gains begin to level off.**
+
+Important:
+
+The AI should not estimate treatment effects itself.
+
+All causal/statistical results must come from the analytical pipeline.
+
+The AI can:
+
+- answer questions about computed results
+- compare selected segmentation scenarios
+- explain uncertainty
+- summarize diminishing returns
+- explain targeting tradeoffs
+- help users navigate the app
+- translate technical metrics into executive language
+
+The AI should not invent business interpretations for `f0`–`f11`.
+
+## Why This Is Different From Existing Work
+
+The original Criteo uplift papers largely use the dataset as a benchmark for uplift modeling / individual treatment-effect estimation.
+
+Common questions in the literature are:
+
+- Which uplift model performs best?
+- How should uplift models be evaluated?
+- How much data is needed to distinguish model performance?
+- Which model has the best Qini/AUUC?
+- How accurately can heterogeneous treatment effects be predicted?
+
+Public projects also commonly:
+
+- train S-learners
+- train T-learners
+- compare X/R/DR learners
+- calculate Qini curves
+- rank persuadable users
+- simulate top-uplift targeting
+
+Our project is deliberately different.
+
+The model is not the final answer.
+
+The model is used to answer a higher-level consulting question:
+
+**How much business value is actually available from increasing segmentation sophistication?**
+
+The project asks whether the organization should invest in discovering/operationalizing customer differences before assuming that more personalization is automatically worthwhile.
+
+## Current Five-Slide Pitch Structure
+
+The class requires:
+
+### Slide 1 — The Why
+
+Who is the client?
+
+What decision do they need to make?
+
+What is the mandate?
+
+Current answer:
+
+Client:
+VP of Marketing Analytics / Head of Customer Strategy.
+
+Decision:
+
+**How much should the organization invest in deeper segmentation and personalized targeting versus continuing with a broader targeting strategy?**
+
+Mandate:
+
+Build an interactive tool that measures the incremental value and diminishing returns of increasingly sophisticated customer segmentation.
+
+### Slide 2 — The What
+
+Show:
+
+- primary dataset
+- ~13.98M users
+- 16 fields
+- 12 anonymized features
+- randomized treatment
+- exposure
+- visit
+- conversion
+- limitations
+
+Also explain:
+
+- anonymous feature semantics
+- non-uniform subsampling
+- no direct campaign IDs
+- cannot identify real customer personas
+- cannot generalize absolute lift directly to all advertisers
+
+Secondary dataset can be mentioned as a possible extension.
+
+### Slide 3 — The How
+
+Likely visuals:
+
+1. subgroup treatment-effect chart with confidence intervals
+2. segmentation headroom curve
+3. targeting-efficiency curve
+
+The segmentation headroom curve is probably the signature visual.
+
+### Slide 4 — Kaggle Test / Prior Work / Phase 2
+
+Show three existing uplift-modeling analyses/papers and explain that they focus primarily on model performance and user ranking.
+
+Our extension:
+
+measure the value and diminishing returns of segmentation itself.
+
+Phase 2 ideas:
+
+- discovery investment calculator
+- attribution-context explorer
+
+### Slide 5 — Technical & AI Plan
+
+We already have proof the data loads.
+
+Current proof:
+
+Criteo Uplift:
+
+- 13,979,592 rows
+- 16 columns
+- loaded successfully through Hugging Face
+
+We likely only need to show the primary uplift dataset on this slide because the class only needs proof that the primary data loads.
+
+Possible technical pipeline:
+
+**Randomized experiment → treatment effects → segmentation levels → held-out evaluation → Streamlit**
+
+AI role:
+
+**AI will act as a queryable exploration assistant, helping users compare segments and targeting scenarios while also translating the statistical results into plain language about whether deeper segmentation is worth the added effort and where the gains begin to level off.**
+
+## Local Environment
+
+Project is running on Windows.
+
+Project directory has been:
+
+`C:\school stuff\data vis\project`
+
+Python:
+
+`C:\Users\chris\anaconda3\python.exe`
+
+Hugging Face datasets are downloaded into the local Hugging Face cache rather than directly into the project folder unless explicitly exported.
+
+The Python environment previously had a package-version mismatch involving:
+
+- `datasets`
+- `aiohttp`
+- `aiosignal`
+- `typing_extensions`
+
+This has already been resolved enough for both datasets to load.
+
+Avoid unnecessary environment/package changes unless required.
+
+## Suggested Project Structure
+
+If the repo is still simple, use something along these lines:
+
+```text
+project/
+│
+├── data/
+│   ├── processed/
+│   └── samples/
+│
+├── notebooks/
+│   ├── 01_data_validation.ipynb
+│   ├── 02_treatment_effects.ipynb
+│   └── 03_segmentation_headroom.ipynb
+│
+├── src/
+│   ├── data.py
+│   ├── treatment_effects.py
+│   ├── heterogeneity.py
+│   ├── segmentation.py
+│   ├── evaluation.py
+│   └── plots.py
+│
+├── app/
+│   └── streamlit_app.py
+│
+├── outputs/
+│   ├── figures/
+│   ├── tables/
+│   └── models/
+│
+├── requirements.txt
+└── README.md
+```
+
+Do not reorganize destructively if useful files already exist.
+
+## Coding Expectations
+
+Keep the workflow reproducible.
+
+Use:
+
+- fixed random seeds
+- train/validation/test splits
+- clear function boundaries
+- cached/precomputed outputs
+- Parquet rather than unnecessary CSV files
+- `float32` where appropriate for memory efficiency
+
+Do not put all logic into one giant notebook.
+
+Do not train large models every time Streamlit refreshes.
+
+Keep raw data separate from derived results.
+
+## Statistical Expectations
+
+Be conservative.
+
+Use randomized `treatment` for causal comparisons.
+
+Do not use `exposure` as if it were randomized treatment.
+
+Do not interpret anonymized features semantically.
+
+Do not claim individual-level counterfactual certainty.
+
+Use held-out evaluation.
+
+Show uncertainty.
+
+Do not assume finer segmentation is better.
+
+Actively measure diminishing returns.
+
+Prefer `visit` as the primary development outcome.
+
+Use `conversion` as an important secondary outcome.
+
+Do not optimize the entire project around Qini/AUUC alone.
+
+The business question is more important than small model-performance differences.
+
+## Immediate Work I Want From Codex
+
+Do not immediately build the final Streamlit application.
+
+First inspect the local project and determine what already exists.
+
+Then:
+
+1. verify the uplift dataset loads
+2. confirm the 13,979,592 × 16 schema
+3. inspect treatment/control balance
+4. inspect exposure behavior
+5. calculate visit and conversion rates
+6. estimate population-level treatment effects
+7. calculate uncertainty/confidence intervals
+8. perform simple feature-level heterogeneity analysis
+9. use honest sample splitting
+10. determine whether stable treatment-response heterogeneity exists
+11. compare no segmentation to several coarse segmentation levels
+12. create the first version of a segmentation-headroom curve
+13. test results on increasingly large samples
+14. run the finalized analysis on the full dataset if practical
+15. report whether the project’s main premise is actually supported
+
+The most important early output is an evidence-based answer to:
+
+**Does increasing segmentation sophistication produce meaningful, stable out-of-sample gains in this randomized benchmark?**
+
+If yes, continue developing the segmentation-headroom app.
+
+If no, say so clearly and recommend a more defensible client decision that can still be supported by the same dataset.
+
+## Current One-Sentence Project Summary
+
+**Use a 14-million-user randomized advertising benchmark to measure how much incremental performance becomes available as customer segmentation becomes more sophisticated, helping marketers decide whether deeper segmentation and personalization are worth investing in.**

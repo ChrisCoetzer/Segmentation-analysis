@@ -1,0 +1,45 @@
+{
+  "title": "Campaign Runway",
+  "version": "retail-decisions-v4-30d",
+  "origin": "Criteo-calibrated response cells + synthetic retail CRM",
+  "seed": 171126,
+  "response_horizon_days": 30,
+  "source_response_horizon_days": 14,
+  "arrival_extension": "Days 29-30 continue the mean daily arrival weight from source days 22-28.",
+  "profile_templates": 200000,
+  "uplift_rows": 13979592,
+  "attribution_rows": 16468027,
+  "timing_check_histories": 987306,
+  "states": [
+    "New",
+    "Engaged",
+    "Ready",
+    "Responded",
+    "Inactive",
+    "Returning",
+    "Not arrived"
+  ],
+  "group_definition": "Primary shopping mission; no outcome or response-time field defines membership.",
+  "synthetic_fields": [
+    "shopping_mission",
+    "orders_last_year",
+    "typical_basket",
+    "promotion_affinity",
+    "preferred_category",
+    "delivery_preference",
+    "preferred_channel",
+    "tenure_months",
+    "customer_id",
+    "arrival_day",
+    "lifecycle_state"
+  ],
+  "assumptions": [
+    "Anonymous source cells supply response heterogeneity, not recovered retail meanings.",
+    "Versioned soft allocation gives every shopping mission a mix of source profiles.",
+    "Propensity rank and a discovery-context timing rank connect aggregate source cells; no identities are joined.",
+    "Prior purchase history is retailer-wide; campaign conversion is a benchmark response to the promoted collection.",
+    "Weekly audience turnover is weighted by synthetic order history and promotion affinity.",
+    "New arrivals enter the reachable audience; they may already have purchased from the retailer.",
+    "Timing and contact coverage include a declared retail decision-clock and familiarity layer; raw source histories are retained. These are separable scenario inputs; individual outcomes are seeded."
+  ]
+}

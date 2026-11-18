@@ -1,0 +1,13 @@
+{
+  "version": "exposure-reference-v1",
+  "customers_per_group": 100000,
+  "horizon_days": 30,
+  "maximum_exposures": 12,
+  "response": "benchmark incremental conversion rate * cumulative exposure coverage",
+  "additional_responses": "population * incremental rate * change in exposure coverage",
+  "contacts": "population minus expected advertising-associated responders from preceding exposures",
+  "cost_basis": "All not-yet-responded customers receive each next exposure, including eventual nonresponders.",
+  "time_basis": "Thirty-day response potential held fixed to isolate exposure count. Exposures are not days.",
+  "scope": "Fixed reference cohort: no arrivals, turnover, organic purchase simulation, targeting optimization or budget constraint. The Phase 2 simulation adds campaign scheduling and environment.",
+  "interpretation": "Criteo-calibrated synthetic reference expectations, not measured marginal causal ad effects."
+}

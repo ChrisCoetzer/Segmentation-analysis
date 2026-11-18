@@ -1,0 +1,84 @@
+[
+  {
+    "segment_id": 0,
+    "profile": "Household regulars",
+    "mission": "Restock the household",
+    "description": "Repeat customers buying the everyday things their household uses.",
+    "quote": "Keep the things we use at home stocked up.",
+    "product_examples": "Cleaning supplies \u00b7 kitchen basics \u00b7 pantry items",
+    "orders_median": 9.0,
+    "basket_median": 41.9,
+    "promotion_affinity": 0.42470605201651,
+    "existing_customer_share": 1.0,
+    "channels": {
+      "Email": 0.666,
+      "Search": 0.334
+    }
+  },
+  {
+    "segment_id": 1,
+    "profile": "Bargain hunters",
+    "mission": "Find a deal",
+    "description": "Price-conscious shoppers looking across categories for worthwhile offers.",
+    "quote": "Give me a good reason to buy at this price.",
+    "product_examples": "Fashion offers \u00b7 home deals \u00b7 discounted electronics",
+    "orders_median": 2.0,
+    "basket_median": 55.27,
+    "promotion_affinity": 0.864709988968216,
+    "existing_customer_share": 0.9172616197989302,
+    "channels": {
+      "Email": 0.337,
+      "SMS": 0.333,
+      "Social": 0.33
+    }
+  },
+  {
+    "segment_id": 2,
+    "profile": "Occasion shoppers",
+    "mission": "Buy for a gift or occasion",
+    "description": "Infrequent customers buying for a birthday, celebration or seasonal event.",
+    "quote": "Help me find the right gift, delivered in time.",
+    "product_examples": "Gifts \u00b7 seasonal decorations \u00b7 celebration supplies",
+    "orders_median": 1.0,
+    "basket_median": 72.08,
+    "promotion_affinity": 0.3996563100309029,
+    "existing_customer_share": 0.5558896405801943,
+    "channels": {
+      "Search": 0.338,
+      "Email": 0.331,
+      "Social": 0.331
+    }
+  },
+  {
+    "segment_id": 3,
+    "profile": "Specialist enthusiasts",
+    "mission": "Buy specialist equipment",
+    "description": "Category-focused customers buying hobby, technology or outdoor equipment.",
+    "quote": "I want the right product for something I care about.",
+    "product_examples": "Hobby equipment \u00b7 electronics \u00b7 outdoor gear",
+    "orders_median": 3.0,
+    "basket_median": 184.75,
+    "promotion_affinity": 0.2768951086956522,
+    "existing_customer_share": 1.0,
+    "channels": {
+      "Search": 0.667,
+      "Email": 0.333
+    }
+  },
+  {
+    "segment_id": 4,
+    "profile": "Convenience shoppers",
+    "mission": "Save time on everyday shopping",
+    "description": "Repeat customers who value easy reordering and delivery over finding the lowest price.",
+    "quote": "Make this quick. I already know what I need.",
+    "product_examples": "Personal care \u00b7 everyday essentials \u00b7 repeat purchases",
+    "orders_median": 8.0,
+    "basket_median": 39.16,
+    "promotion_affinity": 0.19981066968638922,
+    "existing_customer_share": 1.0,
+    "channels": {
+      "Email": 0.667,
+      "SMS": 0.333
+    }
+  }
+]

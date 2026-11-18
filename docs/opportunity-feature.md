@@ -1,0 +1,13 @@
+# Population and audience-ratio simulator
+
+The simulator compares the same campaign audience assembled from different cluster counts. Inputs are total customer population, percentage advertised to (0–100%, 0.5-point steps), baseline advertising lift per 10,000 selected customers, and contribution per additional conversion. Default population is 100,000 and selection is 12.5%, so 12,500 customers are selected. The displayed count updates immediately when either input changes.
+
+At each level, conversion treatment-minus-control effects measured on separate estimation users determine cluster priority. Use actual evaluation-feature cluster sizes to fill the requested share, taking whole clusters first and a random fraction of the boundary cluster in expectation. At roughly 12.5%, this means about one cluster from eight, two from sixteen, or four from thirty-two. Cards and tooltips show the actual whole/boundary allocation; rounding does not force an exact nominal cluster count.
+
+All policies are evaluated within the same frozen 32-cluster feature strata, with common population-share weights in both arms. Map each coarse cluster's allocation to its descendants. This yields a common broad reference across models. Benchmark relative gain equals selected policy lift per selected user divided by broad lift per user, minus one. At 100% selection all policies select everyone, so gains are exactly zero. At 0%, customer counts and additional value are zero.
+
+Selected scenario customers = population × percentage / 100. Additional conversions = selected customers × client baseline lift / 10,000 × benchmark relative gain. Break-even segmentation spend = additional conversions × contribution. There are no segmentation-cost inputs or best-option recommendation. Client economic values and transferring the benchmark gains remain illustrative assumptions; the anonymized subsampled release does not identify client ROI.
+
+The main segmentation chart deliberately remains a different view: it inspects the average of one selected cluster at each level. Its clicking/highlight control does not change the simulator's audience ratio. The simulator explains that it combines clusters, avoiding interpreting the two curves as the same comparison.
+
+Implementation: population_investment_scenario in src/investment.py and app/opportunity.py. Tests cover hand-calculated top-group combinations, fractional boundaries, live population/ratio updates, zero/full selection, zero baseline/population, and independence of conversion economics from the main Visits switch. The UI exposes an expandable scenario table with selected cluster IDs and actual allocation fractions.
