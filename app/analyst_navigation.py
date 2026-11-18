@@ -33,7 +33,8 @@ def install_analyst_navigation():
             const node=doc.querySelector(selector),main=doc.querySelector('[data-testid="stMain"]');
             if(!node||!main)return false;
             host.__analystNavigationToken=token;
-            const top=node.getBoundingClientRect().top-main.getBoundingClientRect().top+main.scrollTop-64;
+            const offset=parseFloat(host.getComputedStyle(main).scrollPaddingTop)||60;
+            const top=node.getBoundingClientRect().top-main.getBoundingClientRect().top+main.scrollTop-offset;
             main.scrollTo({top:Math.max(0,top),behavior:host.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
             if(highlight){
                 const focus=doc.querySelector(target)||node;

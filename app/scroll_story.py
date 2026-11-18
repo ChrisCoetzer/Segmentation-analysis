@@ -43,15 +43,28 @@ def install_scroll_story():
     let index=0;
     sections.forEach((s,i) => { if (s.start<=main.scrollTop+12) index=i; });
     const section=sections[index], direction=Math.sign(event.deltaY);
+    const delta=event.deltaY*(event.deltaMode===1?16:event.deltaMode===2?main.clientHeight:1);
     if (lastDirection!==direction) intent=0;
     lastDirection=direction;
-    const atBottom=main.scrollTop+main.clientHeight>=section.bottom-20;
+    // Let a long section reach its real bottom before handing off. Short
+    // sections retain a viewport-sized stop without a second native snap.
+    const atBottom=main.scrollTop+main.clientHeight>=section.bottom-6;
     const atTop=main.scrollTop<=section.start+20;
     if ((direction>0 && atBottom && index<sections.length-1) || (direction<0 && atTop && index>0)) {
       intent+=Math.abs(event.deltaY);
       if (intent<22) return;
       event.preventDefault(); go(sections[index+direction]);
-    } else intent=0;
+    } else {
+      intent=0;
+      // Large wheel/trackpad deltas must stop at the current section boundary
+      // before a later gesture hands off to the next section.
+      const end=Math.max(section.start,section.bottom-main.clientHeight);
+      if(direction>0 && main.scrollTop<end-6 && main.scrollTop+delta>=end){
+        event.preventDefault();go({start:end});
+      } else if(direction<0 && main.scrollTop>section.start+20 && main.scrollTop+delta<=section.start){
+        event.preventDefault();go(section);
+      }
+    }
   }
   function link(event) {
     const anchor=event.target.closest('a.story-continue'); if (!anchor) return;

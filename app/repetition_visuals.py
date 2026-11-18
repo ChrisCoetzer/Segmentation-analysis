@@ -14,14 +14,14 @@ def compact(value):
     return f'{value/1000:,.0f}k' if value>=1000 else f'{value:,.0f}'
 
 def response_gain_clusters(stages,selected,row=None,header_only=False):
-    viewbox=f'0 {42+row*82} 1120 84' if row is not None else '0 0 1120 42' if header_only else '0 0 1120 480'
+    viewbox=f'0 {42+row*82} 1120 72' if row is not None else '0 0 1120 42' if header_only else '0 0 1120 480'
     svg=[f'<svg xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" viewBox="{viewbox}" role="img" aria-label="Additional modeled responders and advertising contacts at successive exposure stages">']
     for stage,(_,_,label) in enumerate(STAGES if row is None else []):
         x=190+stage*185
         svg.append(f'<text x="{x+85}" y="25" text-anchor="middle" fill="#b4ccd0" font-size="17" font-weight="600">{label} exposure</text>')
     for gid in ([] if header_only else [row] if row is not None else range(5)):
         y=48+gid*82;opacity=1 if selected<0 or gid==selected else .75
-        if gid==selected:svg.append(f'<rect x="0" y="{y-4}" width="1115" height="78" rx="14" fill="#1b3435"/>')
+        if gid==selected:svg.append(f'<rect x="0" y="{y-4}" width="1115" height="{66 if row is not None else 78}" rx="12" fill="#1b3435"/>')
         for line,label in enumerate(SHORT[gid]):
             svg.append(f'<text x="10" y="{y+26+line*19}" fill="{COLORS[gid]}" font-size="15" font-weight="600">{label}</text>')
         for _,r in stages[stages.segment_id.eq(gid)].sort_values('stage_id').iterrows():
@@ -30,10 +30,11 @@ def response_gain_clusters(stages,selected,row=None,header_only=False):
             svg.append(f'<g opacity="{opacity}">')
             for n in range(count):
                 fraction=min(1.,float(r.additional_responses)/2-n)
-                svg.append(f'<circle cx="{x+12+(n%12)*5.1:.1f}" cy="{y+13+(n//12)*5.1:.1f}" r="{1.85*math.sqrt(fraction):.2f}" fill="{COLORS[gid]}"/>')
+                svg.append(f'<circle cx="{x+12+(n%12)*5.1:.1f}" cy="{y+13+(n//12)*(4.5 if row is not None else 5.1):.1f}" r="{1.85*math.sqrt(fraction):.2f}" fill="{COLORS[gid]}"/>')
             svg.append(f'<text x="{x+85}" y="{y+32}" fill="{COLORS[gid]}" font-size="24" font-weight="600">+{r.additional_responses:.1f}</text>')
-            svg.append(f'<text x="{x+12}" y="{y+64}" fill="#99b3bd" font-size="12">{compact(r.contacts)} ads delivered</text></g>')
-        svg.append(f'<line x1="8" x2="1110" y1="{y+76}" y2="{y+76}" stroke="#293e48"/>')
+            svg.append(f'<text x="{x+12}" y="{y+(56 if row is not None else 64)}" fill="#99b3bd" font-size="12">{compact(r.contacts)} ads delivered</text></g>')
+        baseline=y+(65 if row is not None else 76)
+        svg.append(f'<line x1="8" x2="1110" y1="{baseline}" y2="{baseline}" stroke="#293e48"/>')
     svg.append('</svg>')
     return ''.join(svg)
 
@@ -41,13 +42,13 @@ def response_gain_clusters(stages,selected,row=None,header_only=False):
 def render_repetition_rows(stages,selected):
     import streamlit as st
     from app.audience_selection import select_group,clear_group
-    st.image(response_gain_clusters(stages,selected,header_only=True),width='stretch')
-    for gid in range(5):
-        with st.container(key=f'repetition_group_{gid}'):
-            st.image(response_gain_clusters(stages,selected,row=gid),width='stretch')
-            st.button(GROUPS[gid],key=f'choose_repetition_{gid}',width='stretch',on_click=select_group,args=(gid,))
-    if selected>=0:
-        st.button('Show all groups',key='clear_repetition_highlight',on_click=clear_group)
+    with st.container(key='repetition_chart'):
+        st.image(response_gain_clusters(stages,selected,header_only=True),width='stretch')
+        for gid in range(5):
+            with st.container(key=f'repetition_group_{gid}'):
+                st.image(response_gain_clusters(stages,selected,row=gid),width='stretch')
+                st.button(GROUPS[gid],key=f'choose_repetition_{gid}',width='stretch',on_click=select_group,args=(gid,))
+        st.button('Show all groups',key='clear_repetition_highlight',on_click=clear_group,disabled=selected<0)
 
 def response_efficiency(stages,selected,repeat_stage='3rd–4th'):
     first=stages[stages.stage_id.eq(0)].set_index('segment_id')

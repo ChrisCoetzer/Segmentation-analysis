@@ -90,9 +90,8 @@ with st.container(key='chapter_audience'):
     mix,habits,advertising,timing=st.tabs(['Customer groups','Shopping differences','Conversion rates','Response timing'],key='audience_tab',on_change='rerun')
     with mix:
         st.subheader('The whole customer base, largest to smallest')
-        st.write('Group size shows who makes up the audience. Shopping needs and preferences explain who belongs in each group.')
         render_audience_selection(cal)
-        st.caption('Bars show the share of the entire customer base. Selection uses shopping interests, promotion preference, delivery needs and purchase history—not conversion or response speed. Shares and profiles are constructed.')
+        st.caption('Constructed CRM groups, selected by shopping interests, preferences and purchase history.')
     with habits:
         left,right=st.columns(2)
         with left:
@@ -123,11 +122,13 @@ with st.container(key='chapter_audience'):
             else:st.html('<div class="insight-card"><strong>At day 30, every panel is complete.</strong><br>The timing difference is how quickly each audience got here. Move back to an earlier day to see it.</div>')
         st.image(response_tiles(cal['shapes'],day,st.session_state['repetition_profile']),width='stretch')
         st.caption('100 dots = 100 eventual 30-day responders in each group. Filled = responded by this day; pale = later. These are shares of responders, not conversion rates.')
-    with st.expander('Data and response definitions'):
-        st.write('The source histories supply the base response shapes. Retail metadata adds explicit assumptions: easy reorders and offers move faster; occasion purchases and specialist decisions take longer. A familiarity requirement shifts some response paths to later contacts. The raw source histories are retained unchanged; these views show the resulting synthetic scenario used by the campaign simulation.')
-        st.write('The 30-day retail clock maps the source’s 14-day follow-up onto a synthetic month-long scenario. Timing is normalized within that scenario. Time and contact count are separate marginal views, not a joint causal estimate of when a particular person will buy. Benchmark response magnitude comes from the matched uplift records.')
-    st.caption('Synthetic retail CRM profiles and response scenarios. Construction details are available in About this demo.')
-    st.html('<a class="story-continue" href="#repeated-exposure">Now explore what repetition adds <span>↓</span></a>')
+    footer_info,footer_next=st.columns([3,2],vertical_alignment='top')
+    with footer_info:
+        with st.expander('Data and response definitions'):
+            st.write('The source histories supply the base response shapes. Retail metadata adds explicit assumptions: easy reorders and offers move faster; occasion purchases and specialist decisions take longer. A familiarity requirement shifts some response paths to later contacts. The raw source histories are retained unchanged; these views show the resulting synthetic scenario used by the campaign simulation.')
+            st.write('The 30-day retail clock maps the source’s 14-day follow-up onto a synthetic month-long scenario. Timing is normalized within that scenario. Time and contact count are separate marginal views, not a joint causal estimate of when a particular person will buy. Benchmark response magnitude comes from the matched uplift records.')
+    with footer_next:
+        st.html('<a class="story-continue" href="#repeated-exposure">Now explore what repetition adds <span>↓</span></a>')
 
 with st.container(key='chapter_patterns'):
     st.html('<div class="step-label" id="repeated-exposure">03 / THE VALUE OF CONTINUED EXPOSURE</div>')
@@ -141,7 +142,7 @@ with st.container(key='chapter_patterns'):
     with gains:
         st.markdown('**Additional advertising-associated responders at each exposure stage**')
         render_repetition_rows(stages,selected)
-        st.caption('One full dot ≈ 2 additional responders; partial dots show fractions. Counts below each cluster include ads delivered to people who never respond. All groups use the same population and scale.')
+        st.caption('One full dot ≈ 2 additional responders. Ads delivered include contacts to nonresponders.')
     with conclusions:
         st.subheader('The audience calls for different follow-up strategies')
         s=stages.set_index(['segment_id','stage_id'])
@@ -160,11 +161,14 @@ with st.container(key='chapter_patterns'):
             with cols[i%2]:st.html(f'<div class="conclusion-card{" conclusion-active" if active else ""}"><h3>{title}</h3><p>{body}</p></div>')
         st.html('<div class="statement">A single repeat-ad schedule does not suit every group.</div>')
         st.write('These findings identify where early reach or continued exposure may be useful. Phase 2 tests how to divide the budget between them as customers arrive and leave.')
-    with st.expander('The fixed reference behind this comparison'):
-        st.write('This is a precomputed exposure reference, not a configurable campaign. Each group starts with 100,000 customers. Everyone who has not yet produced an advertising-associated response receives the next exposure, including eventual nonresponders. Responders leave the advertising pool. Only advertising-associated responses are counted; organic purchases are not simulated here.')
-        st.write('Response potential equals the group’s benchmark incremental conversion rate. Exposure coverage allocates that potential across contacts. Additional response is the difference between successive exposure totals; response per ad divides by all contacts delivered. The full 30-day response potential is held fixed to isolate exposure count. Exposures are not days.')
-        st.write('These are synthetic reference expectations calibrated from source patterns, not measured causal effects of another ad. Phase 2 adds budgets, delivery timing, customer arrivals and turnover to test competing campaign strategies.')
-    st.html('<a class="story-continue" href="#campaign-simulation">Test the tradeoff with a campaign <span>↓</span></a>')
+    footer_info,footer_next=st.columns([3,2],vertical_alignment='top')
+    with footer_info:
+        with st.expander('The fixed reference behind this comparison'):
+            st.write('This is a precomputed exposure reference, not a configurable campaign. Each group starts with 100,000 customers. Everyone who has not yet produced an advertising-associated response receives the next exposure, including eventual nonresponders. Responders leave the advertising pool. Only advertising-associated responses are counted; organic purchases are not simulated here.')
+            st.write('Response potential equals the group’s benchmark incremental conversion rate. Exposure coverage allocates that potential across contacts. Additional response is the difference between successive exposure totals; response per ad divides by all contacts delivered. The full 30-day response potential is held fixed to isolate exposure count. Exposures are not days.')
+            st.write('These are synthetic reference expectations calibrated from source patterns, not measured causal effects of another ad. Phase 2 adds budgets, delivery timing, customer arrivals and turnover to test competing campaign strategies.')
+    with footer_next:
+        st.html('<a class="story-continue" href="#campaign-simulation">Test the tradeoff with a campaign <span>↓</span></a>')
 
 with st.container(key='chapter_simulation'):
     st.html('<div class="step-label" id="campaign-simulation">04 / PHASE 2 — TRY THE DECISION</div>')

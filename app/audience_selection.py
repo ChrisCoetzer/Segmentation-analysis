@@ -36,7 +36,8 @@ def render_audience_selection(cal):
                 st.html(f'<div class="group-criteria">{html.escape(GROUP_RULES[gid])}</div>')
             st.button(GROUPS[gid], key=f'choose_audience_{gid}', width='stretch',
                       on_click=select_group, args=(gid,))
+    clear,status=st.columns([1,4],vertical_alignment='center')
+    clear.button('Show all groups', key='clear_audience_highlight', on_click=clear_group,disabled=selected<0)
+    status.caption(f'{GROUPS[selected]} highlighted' if selected>=0 else 'Select a row to highlight a group.')
     if selected >= 0:
-        st.button('Show all groups', key='clear_audience_highlight', on_click=clear_group)
-        st.caption(f'{GROUPS[selected]} highlighted here and in the continued-exposure chart. Campaign eligibility stays separate.')
         st.html(f'<style>.st-key-audience_group_{selected}{{border-color:{COLORS[selected]}!important;box-shadow:inset 4px 0 {COLORS[selected]};background:#1b3435!important}}</style>')
