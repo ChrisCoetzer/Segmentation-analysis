@@ -1,0 +1,2 @@
+# Community Cloud reads this entrypoint-local file before the root dev dependencies.
+-r ../requirements-app.txt

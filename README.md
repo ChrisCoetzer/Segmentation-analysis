@@ -67,6 +67,12 @@ The last command uses Streamlit's AppTest and needs local event-loop sockets. It
 
 ## Gemini sidebar chat
 
+### Streamlit Community Cloud
+
+Deploy `ChrisCoetzer/Segmentation-analysis`, branch `main`, entrypoint `app/streamlit_app.py`, with Python 3.13. `app/requirements.txt` selects the pinned runtime packages in `requirements-app.txt`; the root requirements are for development and data preparation. The prepared runtime data is included in the repository.
+
+Add `GEMINI_API_KEY` and `GEMINI_MODEL` to the app's private Streamlit secrets using TOML syntax. Keep `.env` out of Git. The model for this project is `gemini-3.8-flash`. Chat is enabled when a server-side key is configured; the rest of the demonstration also works without it.
+
 Put your Agent Platform / Vertex express-mode API key in the root `.env` file:
 
 ```dotenv
