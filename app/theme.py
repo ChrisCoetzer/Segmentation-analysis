@@ -61,19 +61,23 @@ h2,h3 {color:#e3eeed!important;letter-spacing:-.025em!important}
 [role="listbox"] [role="option"] span {color:inherit!important}
 [data-testid="stMain"] {--story-offset:60px;scroll-snap-type:none;scroll-padding-top:var(--story-offset);scroll-behavior:smooth}
 .st-key-chapter_question,.st-key-chapter_audience,.st-key-chapter_patterns,.st-key-chapter_simulation,.st-key-chapter_answer {min-height:calc(100svh - 60px);height:auto;overflow:visible;padding:1rem 0 1.5rem;border-top:1px solid #293d47}
-.st-key-chapter_audience,.st-key-chapter_patterns{gap:8px!important;padding:10px 0 12px}
-.st-key-audience_tab [role="tabpanel"] > [data-testid="stVerticalBlock"],.st-key-exposure_tab [role="tabpanel"] > [data-testid="stVerticalBlock"]{gap:5px!important}
+.st-key-chapter_audience,.st-key-chapter_patterns{gap:12px!important;padding:14px 0 16px}
+.st-key-audience_tab [role="tabpanel"] > [data-testid="stVerticalBlock"],.st-key-exposure_tab [role="tabpanel"] > [data-testid="stVerticalBlock"]{gap:8px!important}
 .st-key-chapter_audience .story-continue,.st-key-chapter_patterns .story-continue{padding:6px 0;font-size:14px}
-.st-key-chapter_audience h1,.st-key-chapter_patterns h1{font-size:2.35rem!important;padding:.15rem 0 .4rem!important}
-.st-key-chapter_audience h3,.st-key-chapter_patterns h3{font-size:1.2rem!important;padding:.2rem 0 .35rem!important}
+.st-key-chapter_audience h1,.st-key-chapter_patterns h1{font-size:2.35rem!important;padding:0!important}
+.st-key-chapter_audience h3,.st-key-chapter_patterns h3{font-size:1.2rem!important;padding:0!important}
+/* Native heading Markdown reserves a negative rem margin. Reset it when
+   custom compact heading padding is used so subsequent blocks cannot overlap. */
+.st-key-chapter_audience [data-testid="stHeading"] [data-testid="stMarkdownContainer"],
+.st-key-chapter_patterns [data-testid="stHeading"] [data-testid="stMarkdownContainer"]{margin-bottom:0!important}
 .st-key-chapter_audience .step-label,.st-key-chapter_patterns .step-label{margin-bottom:6px}
 .st-key-chapter_audience .insight-card{font-size:14px;line-height:1.5;padding:12px 16px;margin:6px 0}
-.st-key-chapter_patterns .conclusion-card{padding:16px 18px;min-height:142px;margin-bottom:4px}
+.st-key-chapter_patterns .conclusion-card{padding:16px 18px;min-height:clamp(142px,18svh,180px);margin-bottom:4px}
 .st-key-chapter_patterns .conclusion-card h3{font-size:17px;margin-bottom:8px}
 .st-key-chapter_patterns .conclusion-card p{font-size:14px;line-height:1.5}
 .st-key-chapter_patterns .reference-strip{padding:8px 14px}
 .st-key-chapter_patterns .reference-strip strong{font-size:18px;line-height:1.2}
-.st-key-chapter_patterns{gap:6px!important}
+.st-key-chapter_patterns{gap:10px!important}
 .st-key-chapter_patterns .reference-strip span{font-size:11px;line-height:1.4;margin-top:2px}
 .st-key-repetition_chart{gap:4px!important}
 .st-key-chapter_question {border-top:0;padding-top:1.5rem}
@@ -103,9 +107,11 @@ h1[id],.step-label[id] {scroll-margin-top:5rem}
 .hero-footer .scroll-hint {color:#77b8b4;white-space:nowrap;letter-spacing:.08em;font-size:10px}
 @media(max-width:900px) {.hero-title{font-size:48px!important}.hero-copy{padding-right:0}.reference-strip{grid-template-columns:1fr 1fr}.hero-footer{align-items:flex-start}.hero-footer .scroll-hint{display:none}}
 [class*="st-key-audience_group_"]{position:relative;padding:8px 12px!important;border:1px solid #243d47;border-radius:10px;background:#14232d;margin-bottom:0;transition:background .2s,border-color .2s}
+[class*="st-key-audience_group_"]{min-height:clamp(60px,calc((100svh - 470px)/5),100px);justify-content:center}
 [class*="st-key-audience_group_"] [data-testid="stVerticalBlock"]{gap:4px!important}
 [class*="st-key-audience_group_"]:hover{border-color:#6aded0;background:#192f38}
 [class*="st-key-repetition_group_"]{position:relative;border-radius:14px;overflow:hidden;gap:0!important}
+[class*="st-key-repetition_group_"]{min-height:clamp(56px,calc((100svh - 490px)/5),86px);justify-content:center}
 [class*="st-key-choose_audience_"],[class*="st-key-choose_repetition_"]{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;z-index:2}
 [class*="st-key-choose_audience_"] > div,[class*="st-key-choose_repetition_"] > div{width:100%!important;height:100%!important}
 [class*="st-key-choose_audience_"] button,[class*="st-key-choose_repetition_"] button{width:100%!important;height:100%!important;min-height:0!important;background:transparent!important;border:0!important;border-radius:12px!important;box-shadow:none!important;cursor:pointer}
@@ -117,6 +123,10 @@ h1[id],.step-label[id] {scroll-margin-top:5rem}
 .group-criteria{font-size:13px;color:#d4e4e5;line-height:1.4}
 .audience-share{display:flex;align-items:center;gap:12px}.audience-share strong{font-size:22px;line-height:1.15;min-width:46px}
 .audience-track{flex:1;height:24px;border-radius:5px;background:#20353f}.audience-track span{display:block;height:100%;border-radius:5px}
+@media(max-height:850px){
+  .st-key-chapter_audience,.st-key-chapter_patterns{gap:6px!important;padding:10px 0 12px}
+  .st-key-audience_tab [role="tabpanel"] > [data-testid="stVerticalBlock"],.st-key-exposure_tab [role="tabpanel"] > [data-testid="stVerticalBlock"]{gap:5px!important}
+}
 .analyst-focus{animation:analyst-glow 3.5s ease-out}
 @keyframes analyst-glow{0%,35%{box-shadow:0 0 0 3px #6aded0,0 0 36px #6aded026}100%{box-shadow:none}}
 @media(max-width:700px) {.brief-grid{grid-template-columns:1fr;gap:14px}}

@@ -80,7 +80,7 @@ def shopping_averages(templates,field,selected=-1):
     if selected>=0:
         emphasis=alt.condition(alt.datum.segment_id==selected,alt.value(1),alt.value(.25))
         bars=bars.encode(opacity=emphasis);labels=labels.encode(opacity=emphasis)
-    return finish((bars+labels).properties(height=245))
+    return finish((bars+labels).properties(height=280))
 
 def promotion_ranges(templates):
     rows=[]
@@ -133,7 +133,7 @@ def advertising_comparison(groups,units='Per 10,000 customers',selected=-1):
     if selected>=0:
         emphasis=alt.condition(alt.datum.segment_id==selected,alt.value(1),alt.value(.25))
         lines,control,treated,low,high=[chart.encode(opacity=emphasis) for chart in [lines,control,treated,low,high]]
-    return finish((lines+control+treated+low+high).properties(height=275))
+    return finish((lines+control+treated+low+high).properties(height=315))
 
 EXPOSURE_BUCKETS=['1 ad','2 ads','3–4 ads','5+ ads']
 
